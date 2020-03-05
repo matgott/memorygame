@@ -1,0 +1,44 @@
+:root {
+    --white: #fff;
+    --gray: gray;
+    --correct: green;
+    --error: red;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.game {
+    background-color: lightblue;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.game__option {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 25vh;
+    background-color: var(--white);
+    border: 1px solid var(--gray);
+    cursor: pointer;
+}
+
+.game__option-value {
+    font-size: 4.15vw;
+    opacity: 1;
+    transition: opacity 220ms ease-in-out;
+}
+
+.game__option-visible {
+    opacity: 1;
+}
