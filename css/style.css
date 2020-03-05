@@ -1,8 +1,10 @@
 :root {
     --white: #fff;
     --gray: gray;
+    --dark-gray: black;
     --correct: green;
     --error: red;
+    --pending: rgb(231, 201, 31);
 }
 
 * {
@@ -16,11 +18,21 @@ body {
 }
 
 .game {
-    background-color: lightblue;
+    background-color: var(--gray);
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
     flex-wrap: wrap;
+}
+
+.game__scoring {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background-color: var(--dark-gray);
+    color: var(--white);
+    padding: 5px 10px;
+    border-radius: 4px;
 }
 
 .game__option {
@@ -31,14 +43,49 @@ body {
     background-color: var(--white);
     border: 1px solid var(--gray);
     cursor: pointer;
+    transition: all 220ms ease-in-out;
+}
+
+.game__option.selected {
+    background-color: var(--pending);
+}
+
+.game__option.correct {
+    background-color: var(--correct);
+    color: var(--white);
+}
+
+.game__option.error {
+    background-color: var(--error);
+    color: var(--white);
+}
+
+.game__option.hidden {
+    background-color: transparent;
+}
+
+.game__option.hidden .game__option-value {
+    display: none;
 }
 
 .game__option-value {
+    pointer-events: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;    
     font-size: 4.15vw;
-    opacity: 1;
-    transition: opacity 220ms ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 220ms ease-in-out;
 }
 
-.game__option-visible {
+.game__option.selected .game__option-value,
+.game__option.correct .game__option-value,
+.game__option.error .game__option-value {
+    visibility: visible;
     opacity: 1;
 }
