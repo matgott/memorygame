@@ -7,6 +7,40 @@ const setWindowSize = () => {
     game.style.height = h + "px";    
 }
 
+const getScoreBoard = () => {
+    let scoring = document.createElement("div");
+    scoring.className ="game__scoring";
+    scoring.textContent = "Moves: ";
+    let scoreValue = document.createElement("span");
+    scoreValue.className = "game__scoring-value";
+    scoreValue.textContent = "0";
+    scoring.appendChild(scoreValue);
+
+    return scoring;
+}
+
+const getResult = () => {
+    let result = document.createElement("div");
+    result.className = "game__result";
+
+    let resultText = document.createElement("div");
+    resultText.className = "game__result-text";
+    resultText.innerHTML = "You finish the game with <span class='moves'>X</span> moves";
+
+    let resultRestart = document.createElement("button");
+    resultRestart.className = "game__result-restart";
+    resultRestart.type = "button";
+    resultRestart.textContent = "RESTART";
+    resultRestart.addEventListener("click", e => {
+        initGame(1, 4);
+    });
+
+    result.appendChild(resultText);
+    result.appendChild(resultRestart);
+
+    return result;
+}
+
 const getOptionElement = (v) => {
     const option = document.createElement("div");
     option.className = "game__option";
@@ -40,6 +74,8 @@ const setCorrectOptions = (previousOption, currentOption) => {
         
         toggleClass(previousOption, "correct");
         toggleClass(previousOption, "hidden");
+
+        isFinish();
     }, 700);
 }
 
@@ -59,6 +95,17 @@ const setErrorOptions = (previousOption, currentOption) => {
 const addMove = () => {
     let score = parseInt(document.querySelector(".game__scoring-value").textContent);
     document.querySelector(".game__scoring-value").textContent = ++score;
+}
+
+const isFinish = () => {
+    const totalOptions = document.querySelectorAll(".game__option").length;
+    const hiddenOptions = document.querySelectorAll(".game__option.hidden").length;
+
+    if (totalOptions == hiddenOptions) {
+        const moves = document.querySelector(".game__scoring-value").innerHTML;
+        document.querySelector(".game__result-text .moves").textContent = moves;
+        toggleClass(document.querySelector(".game__result"), "active");
+    }
 }
 
 const checkOption = (e) => {
@@ -97,6 +144,7 @@ const checkOption = (e) => {
 
 const initGame = (minValue, maxValue) => {
     let game = document.querySelector(".game");
+    game.innerHTML = "";
     const maxRows = 4;
     const basis = 100 / ((maxValue - (minValue-1)) * 2 / maxRows);
     const optionWidth = window.innerWidth / ((maxValue - (minValue-1)) * 2 / maxRows);
@@ -104,14 +152,8 @@ const initGame = (minValue, maxValue) => {
 
     game.style.flexBasis = basis + "%";
 
-    //Score board
-    let scoring = document.createElement("div");
-    scoring.className ="game__scoring";
-    scoring.textContent = "Moves: ";
-    let scoreValue = document.createElement("span");
-    scoreValue.className = "game__scoring-value";
-    scoreValue.textContent = "0";
-    scoring.appendChild(scoreValue);
+    const scoring = getScoreBoard();
+    const result = getResult();
 
     [...Array(maxValue*2)].map(() => {
         let n = ~~(Math.random() * maxValue) + minValue; //~~ is shorthand for Math.floor()
@@ -126,9 +168,10 @@ const initGame = (minValue, maxValue) => {
         o.querySelector(".game__option-value").style.fontSize = (basis / 2) - 5 + "vh";
 
         game.appendChild(o);
-        game.appendChild(scoring);
     });
 
+    game.appendChild(scoring);
+    game.appendChild(result);
 }
 
 window.addEventListener("DOMContentLoaded", e => {
