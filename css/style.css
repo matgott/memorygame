@@ -21,6 +21,12 @@ body {
     padding: 0;
 }
 
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
 .game {
     background-color: var(--gray);
     display: flex;
@@ -30,14 +36,104 @@ body {
     position: relative;
 }
 
+.game__settings-trigger {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 20px;
+    cursor: pointer;
+    display: block;
+}
+
+.game__settings.open .game__settings-trigger {
+    display: none;
+}
+
+.game__settings {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 100vh;
+    background-color: var(--dark-gray);    
+    transform: translateX(-100%);
+    transition: transform 220ms ease-in-out;
+    font-size: 14px;
+}
+
+.game__settings.open {
+    transform: translateX(0);
+}
+
+.game__menu {
+    width: 100%;
+    color: var(--white);
+    margin-top: 2em;
+}
+
+.game__menu .game__menu-option {
+    padding: 10px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;    
+}
+
+.game__settings-close {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--pending);
+    color: var(--dark-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.difficulty-modifier {
+    background: var(--pending);
+    color: var(--dark-gray);
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-left: .5em;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;    
+}
+
+.difficulty-modifier:first-child {
+    margin-left: 1em;
+}
+
 .game__scoring {
     position: absolute;
-    right: 20px;
     top: 20px;
+    right: 20px;
     background-color: var(--dark-gray);
     color: var(--white);
     padding: 5px 10px;
     border-radius: var(--radius);
+}
+
+.game__difficulty-change {
+    margin-left: 10px;
+    background-color: var(--pending);
+    color: var(--dark-gray);
+    text-align: center;
+    padding: 0 5px;
+    border-radius: 100%;
+    cursor: pointer;
 }
 
 .game__result {
@@ -127,4 +223,11 @@ body {
 .game__result.active {
     visibility: visible;
     opacity: 1;
+}
+
+@media only screen and (max-width: 425px) {
+    .game__settings {
+        width: 100%;
+        text-align: center;
+    }
 }

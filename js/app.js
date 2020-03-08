@@ -1,10 +1,26 @@
-const setWindowSize = () => {
+const minOptionValue = 1;
+const maxOptionValue = 12;
+const maxRows = 4;
+const minDiff = 4;
+const maxDiff = 24;
+
+const setWindowSize = (minValue, maxValue) => {
     const game = document.querySelector(".game");
     const w = window.innerWidth;
     const h = window.innerHeight;
 
     game.style.width = w + "px";
-    game.style.height = h + "px";    
+    game.style.height = h + "px";
+
+    if (minValue && maxValue) {
+        const basis = 100 / ((maxValue - (minValue-1)) * 2 / maxRows);
+        const optionWidth = window.innerWidth / ((maxValue - (minValue-1)) * 2 / maxRows);
+        const options = document.querySelectorAll(".game__option");
+        for (o of options) {
+            o.style.width = optionWidth + "px";
+            o.querySelector(".game__option-value").style.fontSize = (basis / 2) - 5 + "vh";
+        }
+    }
 }
 
 const getScoreBoard = () => {
@@ -17,6 +33,73 @@ const getScoreBoard = () => {
     scoring.appendChild(scoreValue);
 
     return scoring;
+}
+
+const addDifficulty = (e, addFactor = 2) => {
+    const currentDiff = parseInt(document.querySelector(".game").dataset.currentDiff);
+    const newDiff = currentDiff + addFactor <= maxDiff ? currentDiff + addFactor : currentDiff;
+
+    if (currentDiff != newDiff) {
+        initGame(minOptionValue, newDiff, false);
+    }
+}
+
+const subDifficulty = (e, subFactor = 2) => {
+    const currentDiff = parseInt(document.querySelector(".game").dataset.currentDiff);
+    const newDiff = currentDiff - subFactor >= minDiff ? currentDiff - subFactor : currentDiff;
+
+    if (currentDiff != newDiff) {
+        initGame(minOptionValue, newDiff, false);
+    }
+}
+
+const getSettingTrigger = () => {
+    let trigger = document.createElement("img");
+    trigger.src = "./images/settings.svg";
+    trigger.alt = "Settings";
+    trigger.className = "game__settings-trigger";
+    trigger.addEventListener("click", toggleMenu);
+
+    return trigger;
+}
+
+const getSettingMenu = () => {
+    let setting = document.createElement("div");
+    setting.className = "game__settings";
+
+    let menu = document.createElement("ul");
+    menu.className = "game__menu";
+
+    ////
+    let difficultyOption = document.createElement("li");
+    difficultyOption.className = "game__menu-option";
+    difficultyOption.textContent = "Difficulty";
+
+    let subDifficultyElement = document.createElement("span");
+    subDifficultyElement.textContent = "-";
+    subDifficultyElement.className = "difficulty-modifier sub";
+    subDifficultyElement.addEventListener("click", subDifficulty);
+
+    let addDifficultyElement = document.createElement("span");
+    addDifficultyElement.textContent = "+";
+    addDifficultyElement.className = "difficulty-modifier add";
+    addDifficultyElement.addEventListener("click", addDifficulty);
+
+    difficultyOption.appendChild(subDifficultyElement);
+    difficultyOption.appendChild(addDifficultyElement);
+
+    menu.appendChild(difficultyOption);
+    ////
+
+    let closeSetting = document.createElement("div");
+    closeSetting.className = "game__settings-close";
+    closeSetting.textContent = "Close";
+    closeSetting.addEventListener("click", toggleMenu);
+
+    setting.appendChild(menu);
+    setting.appendChild(closeSetting);
+
+    return setting;
 }
 
 const getResult = () => {
@@ -32,13 +115,22 @@ const getResult = () => {
     resultRestart.type = "button";
     resultRestart.textContent = "RESTART";
     resultRestart.addEventListener("click", e => {
-        initGame(1, 4);
+        initGame(minOptionValue, maxOptionValue);
     });
 
     result.appendChild(resultText);
     result.appendChild(resultRestart);
 
     return result;
+}
+
+const toggleMenu = () => {
+    const menu = document.querySelector(".game__settings");
+    if (menu.classList.contains("open")) {
+        menu.classList.remove("open");
+    } else {
+        menu.classList.add("open");
+    }
 }
 
 const getOptionElement = (v) => {
@@ -142,10 +234,10 @@ const checkOption = (e) => {
     }
 }
 
-const initGame = (minValue, maxValue) => {
+const initGame = (minValue, maxValue, clearMenu = true) => {
     let game = document.querySelector(".game");
     game.innerHTML = "";
-    const maxRows = 4;
+    game.dataset.currentDiff = maxValue;
     const basis = 100 / ((maxValue - (minValue-1)) * 2 / maxRows);
     const optionWidth = window.innerWidth / ((maxValue - (minValue-1)) * 2 / maxRows);
     let usedValues = [];
@@ -154,6 +246,8 @@ const initGame = (minValue, maxValue) => {
 
     const scoring = getScoreBoard();
     const result = getResult();
+    const settingTrigger = getSettingTrigger();
+    const settingMenu = getSettingMenu();
 
     [...Array(maxValue*2)].map(() => {
         let n = ~~(Math.random() * maxValue) + minValue; //~~ is shorthand for Math.floor()
@@ -172,13 +266,25 @@ const initGame = (minValue, maxValue) => {
 
     game.appendChild(scoring);
     game.appendChild(result);
+    if (clearMenu) {
+        if(document.querySelector(".game__settings-trigger")) {
+            document.querySelector(".game__settings-trigger").remove();
+        }
+
+        if (document.querySelector(".game__settings")) {
+            document.querySelector(".game__settings").remove();
+        }
+
+        document.body.appendChild(settingTrigger);
+        document.body.appendChild(settingMenu);
+    }
 }
 
-window.addEventListener("DOMContentLoaded", e => {
-    initGame(1, 4);
+document.addEventListener("DOMContentLoaded", e => {
+    initGame(minOptionValue, maxOptionValue);
     setWindowSize();
 });
 
 window.addEventListener("resize", e => {
-    setWindowSize();
+    setWindowSize(minOptionValue, maxOptionValue);
 });
