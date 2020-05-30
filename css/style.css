@@ -27,6 +27,11 @@ ul {
     padding: 0;
 }
 
+input[type='checkbox'] {
+    margin: 0;
+    cursor: pointer;
+}
+
 .game {
     background-color: var(--gray);
     display: flex;
@@ -53,7 +58,7 @@ ul {
     position: absolute;
     top: 0;
     left: 0;
-    width: 200px;
+    width: 300px;
     height: 100vh;
     background-color: var(--dark-gray);    
     transform: translateX(-100%);
@@ -75,7 +80,7 @@ ul {
     padding: 10px 25px;
     display: flex;
     align-items: center;
-    justify-content: center;    
+    justify-content: space-between;    
 }
 
 .game__settings-close {

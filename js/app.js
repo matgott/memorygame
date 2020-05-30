@@ -3,6 +3,7 @@ const maxOptionValue = 12;
 const maxRows = 4;
 const minDiff = 4;
 const maxDiff = 24;
+let disabledClick = false; //To avoid while animation of checkOption keep clicking
 
 const setWindowSize = (minValue, maxValue) => {
     const game = document.querySelector(".game");
@@ -75,6 +76,8 @@ const getSettingMenu = () => {
     difficultyOption.className = "game__menu-option";
     difficultyOption.textContent = "Difficulty";
 
+    let subContainer = document.createElement("div");
+
     let subDifficultyElement = document.createElement("span");
     subDifficultyElement.textContent = "-";
     subDifficultyElement.className = "difficulty-modifier sub";
@@ -85,11 +88,37 @@ const getSettingMenu = () => {
     addDifficultyElement.className = "difficulty-modifier add";
     addDifficultyElement.addEventListener("click", addDifficulty);
 
-    difficultyOption.appendChild(subDifficultyElement);
-    difficultyOption.appendChild(addDifficultyElement);
+    subContainer.appendChild(subDifficultyElement);
+    subContainer.appendChild(addDifficultyElement);
+    difficultyOption.appendChild(subContainer);
 
     menu.appendChild(difficultyOption);
     ////
+
+    let correctOptionVisibility = document.createElement("li");
+    correctOptionVisibility.className = "game__menu-option";
+    correctOptionVisibility.textContent = "Keep visible correct options";
+
+    let toggleVisibility = document.createElement("input");
+    toggleVisibility.type = "checkbox";
+    toggleVisibility.id = "option__visibility";
+    toggleVisibility.addEventListener("change", e => {
+        const value = e.target.checked;
+        let correctOptions;
+        if (value) {
+            correctOptions = document.querySelectorAll(".game__option.hidden");
+        } else {
+            correctOptions = document.querySelectorAll(".game__option.correct");
+        }
+        for (const o of correctOptions) {
+            toggleClass(o, "hidden");
+            toggleClass(o, "correct");
+        }
+    });
+
+    correctOptionVisibility.appendChild(toggleVisibility);
+
+    menu.appendChild(correctOptionVisibility);
 
     let closeSetting = document.createElement("div");
     closeSetting.className = "game__settings-close";
@@ -155,23 +184,31 @@ const toggleClass = (e, c) => {
 }
 
 const setCorrectOptions = (previousOption, currentOption) => {
+    disabledClick = true;
     toggleClass(currentOption, "correct");
 
     toggleClass(previousOption, "correct");
     toggleClass(previousOption, "selected");
 
+    const visible = document.getElementById("option__visibility").checked;
+
     setTimeout(() => {
-        toggleClass(currentOption, "correct");
-        toggleClass(currentOption, "hidden");
-        
-        toggleClass(previousOption, "correct");
-        toggleClass(previousOption, "hidden");
+        if (!visible) {
+            //If not visible, correct options are hidden
+            toggleClass(currentOption, "correct");
+            toggleClass(currentOption, "hidden");
+            
+            toggleClass(previousOption, "correct");
+            toggleClass(previousOption, "hidden");
+        }
 
         isFinish();
+        disabledClick = false;
     }, 700);
 }
 
 const setErrorOptions = (previousOption, currentOption) => {
+    disabledClick = true;
     toggleClass(currentOption, "error");
 
     toggleClass(previousOption, "error");
@@ -181,6 +218,8 @@ const setErrorOptions = (previousOption, currentOption) => {
         toggleClass(currentOption, "error");
         
         toggleClass(previousOption, "error");
+
+        disabledClick = false;
     }, 700);
 }
 
@@ -192,8 +231,9 @@ const addMove = () => {
 const isFinish = () => {
     const totalOptions = document.querySelectorAll(".game__option").length;
     const hiddenOptions = document.querySelectorAll(".game__option.hidden").length;
+    const correctOptions = document.querySelectorAll(".game__option.correct").length;
 
-    if (totalOptions == hiddenOptions) {
+    if (totalOptions == correctOptions) {
         const moves = document.querySelector(".game__scoring-value").innerHTML;
         document.querySelector(".game__result-text .moves").textContent = moves;
         toggleClass(document.querySelector(".game__result"), "active");
@@ -201,35 +241,37 @@ const isFinish = () => {
 }
 
 const checkOption = (e) => {
-    const option = e.target;
-    const value = parseInt(e.target.querySelector(".game__option-value").innerHTML);
-
-    //If click on hidden element, do nothing
-    if (option.classList.contains("hidden")) {
-        return;
-    }
-
-    //If click on the same element, remove selected class
-    if (option.classList.contains("selected")) {
-        toggleClass(option, "selected");
-        addMove();
-        return;
-    }
-
-    const previousOption = document.querySelector(".game__option.selected");
-
-    //If not exists previous option selected, set selected current option
-    if (!previousOption) {
-        toggleClass(option, "selected");
-    } else {
-        addMove();
-        const previousValue = parseInt(previousOption.querySelector(".game__option-value").innerHTML);
-
-        //If values are the same, so the option is correct
-        if (value == previousValue) {
-            setCorrectOptions(previousOption, option);
+    if (!disabledClick) {
+        const option = e.target;
+        const value = parseInt(e.target.querySelector(".game__option-value").innerHTML);
+    
+        //If click on hidden element, do nothing
+        if (option.classList.contains("hidden")) {
+            return;
+        }
+    
+        //If click on the same element, remove selected class
+        if (option.classList.contains("selected")) {
+            toggleClass(option, "selected");
+            addMove();
+            return;
+        }
+    
+        const previousOption = document.querySelector(".game__option.selected");
+    
+        //If not exists previous option selected, set selected current option
+        if (!previousOption) {
+            toggleClass(option, "selected");
         } else {
-            setErrorOptions(previousOption, option);
+            addMove();
+            const previousValue = parseInt(previousOption.querySelector(".game__option-value").innerHTML);
+    
+            //If values are the same, so the option is correct
+            if (value == previousValue) {
+                setCorrectOptions(previousOption, option);
+            } else {
+                setErrorOptions(previousOption, option);
+            }
         }
     }
 }
